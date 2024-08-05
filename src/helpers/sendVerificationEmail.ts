@@ -1,32 +1,35 @@
-import { resend } from "@/lib/resend";
-import { ApiResponse } from "@/types/AmiResponse";
-import VerificationCodeEmail from "../../emails/verificationEmail";
-
+import { ApiResponse } from '@/types/ApiResponse';
+import VerificationCodeEmail from '../../emails/verificationEmail';
+import { sendEmail } from '@/lib/sendEmail';
 
 export async function sendVerificationEmail(
     email: string,
     username: string,
-    verifyCode: string,
+    verifyCode: string
 ): Promise<ApiResponse> {
     try {
+        const html = VerificationCodeEmail(username, verifyCode);
 
-        const { data, error } = await resend.emails.send({
-                from: 'Acme <onboarding@resend.dev>',
-                to: [email],
-                subject: 'Motive Detox | Verification Code',
-                react: VerificationCodeEmail({ verificationCode: verifyCode , recipientName: username }),
-              });
+        const result = await sendEmail(
+            email,
+            'MotivDetox | Verification Code',
+            html
+        );
 
-
-        return{
-            success: false,
-            mesage:'Failed to send ferifiction email'
+        if (!result.success) {
+            console.error('Error sending verification email:', result.message);
+            return {
+                success: false,
+                message: 'Failed to send verification email'
+            };
         }
+
+        return { success: true, message: 'Verification email sent successfully.' };
     } catch (emailSendingError) {
-        console.log('Failed to send verification email', emailSendingError);
-        return{
+        console.error('Failed to send verification email', emailSendingError);
+        return {
             success: false,
-            mesage:'Failed to send ferifiction email'
-        }
+            message: 'Failed to send verification email'
+        };
     }
-} 
+}
