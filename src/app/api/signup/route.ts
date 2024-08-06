@@ -34,11 +34,21 @@ export async function POST(req: Request ){
 
 
     if (existingUserByEmail) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      existingUserByEmail.password = hashedPassword;
-      existingUserByEmail.verifyCode = verifyCode;
-      existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000);
-      await existingUserByEmail.save();
+      if (existingUserByEmail.isVerified) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: 'User already exists with this email',
+          },
+          { status: 400 }
+        );
+      } else {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        existingUserByEmail.password = hashedPassword;
+        existingUserByEmail.verifyCode = verifyCode;
+        existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000);
+        await existingUserByEmail.save();
+      }
       
     }else{
       const hashedPassword = await bcrypt.hash(password, 10);

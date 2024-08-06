@@ -20,6 +20,7 @@ export default function verificationCodeEmail(username: string, verifyCode: stri
               <p class="text">Your verification code is:</p>
               <p class="code">${verifyCode}</p>
               <p class="text">Please use this code to complete your registration.</p>
+              <p class="text">This code will expire in 1 hour.</p>
               <p class="text">Thank you!</p>
           </div>
       </body>
